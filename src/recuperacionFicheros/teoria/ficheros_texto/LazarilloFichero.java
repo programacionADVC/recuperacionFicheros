@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Scanner;
 
@@ -32,12 +33,63 @@ public class LazarilloFichero {
 		copiarFichero();
 		//usando un método que copie solo a partir de una palabra hasta otra, 
 		//ejemplo se le pasa 25 y 2000 copia desde la palabra 25 a la 2000
-		crearFicheroParcial(25, 2000);
+		crearFicheroParcial(25, 100);
 	}
 
-	private static void crearFicheroParcial(int i, int j) {
-		// TODO Auto-generated method stub
+	//métod que crea un fichero desde una línea, hasta otra especificada
+	private static void crearFicheroParcial(int palabraInicial, int palabraFinal) {
+		// comprobar que palabraFinal > palabraInicial
+		if (palabraFinal <= palabraInicial) {
+			System.out.println("No se puede hacer");
+			return;
+		}
+		// comprobar que palabraInicial > 0
+		if (palabraInicial < 0){
+			System.out.println("No se puede hacer");
+			return;
+		}
+		// comprobar que palabraFinal < última palabra
+		List<String> lineas = leerFicheroTexto(path);
+		int numeroPalabras = contarPalabras(lineas);
+		if (palabraFinal >= numeroPalabras)  {
+			System.out.println("No se puede hacer");
+			return;
+		}
+		int contador = 0, contadorNuevasLineas = 0;
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String linea : lineas) {
+			sc = new Scanner(linea);
+			while (sc.hasNext()) {
+				String palabra = sc.next();
+				
+				if (contador >= palabraInicial && contador <= palabraFinal) {
+				//	System.err.println("contador: " + contador + ", palabra: " + palabra);
+					stringBuilder.append(palabra);
+					contadorNuevasLineas++;
+					if (contadorNuevasLineas % 10 == 0)
+						stringBuilder.append("\n");
+					stringBuilder.append(" ");
+				}
+				contador++;
+				if (contador == palabraFinal)
+					break;
+			}
 		
+
+		}
+		sc.close();
+		String texto = stringBuilder.toString();
+		System.out.println("texto: " + texto);
+		char ultimoCaracter = texto.charAt(texto.length() - 1);
+		if (ultimoCaracter  == ' ' || ultimoCaracter == '\n' )
+			texto = texto.substring(0, texto.length() - 1);
+		// escribimos desde la línea especificada a la indica con write del api Files
+		try {
+			Files.writeString(backup_parcial, texto, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 
 	private static void copiarFichero() {
